@@ -2,12 +2,12 @@
   "name": "api-speedtest",
   "version": "0.0.0",
   "private": true,
-  "scripts": {
-    "start": "node ./bin/www"
-  },
   "dependencies": {
+    "aws-sdk": "^2.319.0",
+    "body-parser": "^1.18.3",
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
+    "moment": "^2.22.2",
     "serverless-http": "^1.6.0"
   }
 }
