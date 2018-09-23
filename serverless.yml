@@ -2,15 +2,73 @@
 
 service: speedtest-serverless
 
+custom:
+  tableName: 'speedtest-table-${self:provider.stage}'
+  stage: ${opt:stage, self:provider.stage}
+  domains:
+    baseDomain: mydigi.tech
+    prod: api.${self:custom.domains.baseDomain}
+    dev: dev-api.${self:custom.domains.baseDomain}
+  customDomain:
+    domainName: ${self:custom.domains.${self:custom.stage}}
+    certificateName: '*.${self:custom.domains.baseDomain}'
+    basePath: ''
+    stage: ${self:provider.stage}
+    createRoute53Record: true
+
 provider:
   name: aws
-  runtime: nodejs6.10
-  stage: dev
+  runtime: nodejs8.10
+  stage: ${opt:stage, 'dev'}
   region: us-east-1
+  apiKeys:
+    - ${self:provider.stage}-api-key
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - { "Fn::GetAtt": ["SpeedtestDynamoDBTable", "Arn" ] }
+  environment:
+    SPEEDTEST_TABLE: ${self:custom.tableName}
 
 functions:
   app:
     handler: app.handler
     events:
-      - http: ANY /
-      - http: 'ANY {proxy+}'
+      - http:
+          path: log
+          method: put
+          private: true
+
+plugins:
+  - serverless-domain-manager
+
+resources:
+  Resources:
+    SpeedtestDynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: date
+            AttributeType: S
+          -
+            AttributeName: time
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: date
+            KeyType: HASH
+          -
+            AttributeName: time
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.tableName}
