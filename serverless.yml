@@ -4,12 +4,25 @@ service: speedtest-serverless
 
 custom:
   tableName: 'speedtest-table-${self:provider.stage}'
+  stage: ${opt:stage, self:provider.stage}
+  domains:
+    baseDomain: mydigi.tech
+    prod: api.${self:custom.domains.baseDomain}
+    dev: dev-api.${self:custom.domains.baseDomain}
+  customDomain:
+    domainName: ${self:custom.domains.${self:custom.stage}}
+    certificateName: '*.${self:custom.domains.baseDomain}'
+    basePath: ''
+    stage: ${self:provider.stage}
+    createRoute53Record: true
 
 provider:
   name: aws
   runtime: nodejs8.10
-  stage: dev
+  stage: ${opt:stage, 'dev'}
   region: us-east-1
+  apiKeys:
+    - ${self:provider.stage}-api-key
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -28,8 +41,13 @@ functions:
   app:
     handler: app.handler
     events:
-      - http: ANY /
-      - http: 'ANY {proxy+}'
+      - http:
+          path: log
+          method: put
+          private: true
+
+plugins:
+  - serverless-domain-manager
 
 resources:
   Resources:

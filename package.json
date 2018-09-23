@@ -9,5 +9,8 @@
     "http-errors": "~1.6.2",
     "moment": "^2.22.2",
     "serverless-http": "^1.6.0"
+  },
+  "devDependencies": {
+    "serverless-domain-manager": "^2.6.5"
   }
 }
