@@ -15,7 +15,7 @@ const logModule = ((moment, dynamoDbModule) => {
             server_name: request.server_name,
             date: date,
             time: time,
-            distance: request.server_name,
+            distance: request.distance,
             ping: request.ping,
             download: request.download,
             upload: request.upload,
