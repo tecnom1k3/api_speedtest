@@ -34,8 +34,20 @@ provider:
         - dynamodb:DeleteItem
       Resource:
         - { "Fn::GetAtt": ["SpeedtestDynamoDBTable", "Arn" ] }
+    - Effect: Allow
+      Action:
+        - ec2:CreateNetworkInterface
+        - ec2:DescribeNetworkInterfaces
+        - ec2:DeleteNetworkInterface
+      Resource: "*"
   environment:
     SPEEDTEST_TABLE: ${self:custom.tableName}
+#  vpc:
+#    securityGroupIds:
+#      - sg-02b6a929bdd9c2742
+#    subnetIds:
+#      - subnet-018192d8cd139b01a
+#      - subnet-047299e2b7ea5a09c
 
 functions:
   app:
@@ -45,6 +57,20 @@ functions:
           path: log
           method: put
           private: true
+  test:
+    handler: app.handler
+    timeout: 30
+    vpc:
+      securityGroupIds:
+        - "Fn::GetAtt": ServerlessSecurityGroup.GroupId
+      subnetIds:
+        - Ref: ServerlessSubnetA
+        - Ref: ServerlessSubnetB
+    events:
+      - http:
+          path: /
+          method: get
+          private: false
 
 plugins:
   - serverless-domain-manager
@@ -72,3 +98,104 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:custom.tableName}
+    ServerlessVPC:
+      Type: AWS::EC2::VPC
+      Properties:
+        CidrBlock: "172.17.0.0/16"
+        Tags:
+          - Key: Name
+            Value: "speed test vpc"
+    ServerlessSubnetA:
+      DependsOn: ServerlessVPC
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId:
+          Ref: ServerlessVPC
+        AvailabilityZone: ${self:provider.region}a
+        CidrBlock: "172.17.0.0/24"
+        Tags:
+          - Key: Name
+            Value: "speed test subnet a"
+    ServerlessSubnetB:
+      DependsOn: ServerlessVPC
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId:
+          Ref: ServerlessVPC
+        AvailabilityZone: ${self:provider.region}b
+        CidrBlock: "172.17.1.0/24"
+        Tags:
+          - Key: Name
+            Value: "speed test subnet b"
+    ServerlessSecurityGroup:
+      DependsOn: ServerlessVPC
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: SecurityGroup for Serverless Functions
+        VpcId:
+          Ref: ServerlessVPC
+        Tags:
+          - Key: Name
+            Value: "speed test serverless security group"
+    ServerlessStorageSecurityGroup:
+      DependsOn: ServerlessVPC
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Ingress for RDS Instance
+        VpcId:
+          Ref: ServerlessVPC
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 3306
+            ToPort: 3306
+            CidrIp: 0.0.0.0/0
+#            TODO: Remove CIDR and restore SourceSecurityGroupId after testing!!!
+#            SourceSecurityGroupId:
+#              Ref: ServerlessSecurityGroup
+        Tags:
+          - Key: Name
+            Value: "speed test storage security group"
+    ServerlessRDSSubnetGroup:
+      Type: AWS::RDS::DBSubnetGroup
+      Properties:
+        DBSubnetGroupDescription: "RDS Subnet Group"
+        SubnetIds:
+          - Ref: ServerlessSubnetA
+          - Ref: ServerlessSubnetB
+        Tags:
+          - Key: Name
+            Value: "speed test RDS subnet group"
+    ServerlessInternetGateway:
+      DependsOn: ServerlessVPC
+      Type: AWS::EC2::InternetGateway
+      Properties:
+        Tags:
+          - Key: Name
+            Value: "speed test internet gateway"
+    ServerlessAttachInternetGateway:
+      Type: AWS::EC2::VPCGatewayAttachment
+      Properties:
+        VpcId:
+          Ref: ServerlessVPC
+        InternetGatewayId:
+          Ref: ServerlessInternetGateway
+    ServerlessRouteTable:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId:
+          Ref: ServerlessVPC
+        Tags:
+          - Key: Name
+            Value: "speed test route table"
+    ServerlessRoute:
+      Type: AWS::EC2::Route
+      DependsOn: ServerlessInternetGateway
+      Properties:
+        RouteTableId:
+          Ref: ServerlessRouteTable
+        DestinationCidrBlock: 0.0.0.0/0
+        GatewayId:
+          Ref: ServerlessInternetGateway
+
+# TODO: add internet gateway (https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html),
+# TODO: change rds security group to anywhere
