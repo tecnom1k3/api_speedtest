@@ -42,6 +42,10 @@ provider:
       Resource: "*"
   environment:
     SPEEDTEST_TABLE: ${self:custom.tableName}
+    RDS_HOST: ${ssm:/speedtest/rds/host}
+    RDS_USER: ${ssm:/speedtest/rds/user}
+    RDS_DATABASE: ${ssm:/speedtest/rds/database}
+    RDS_PASSWORD: ${ssm:/speedtest/rds/password~true}
 #  vpc:
 #    securityGroupIds:
 #      - sg-02b6a929bdd9c2742
@@ -196,6 +200,3 @@ resources:
         DestinationCidrBlock: 0.0.0.0/0
         GatewayId:
           Ref: ServerlessInternetGateway
-
-# TODO: add internet gateway (https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html),
-# TODO: change rds security group to anywhere
