@@ -37,7 +37,7 @@ const logModule = ((moment, dynamoDbModule, winston, logDao) => {
 
         winston.logger.info("Created model " + JSON.stringify(model));
 
-        let insertId = logDao.create(model).catch((err)=>{
+        let insertId = logDao.create(model).catch((err) => {
             winston.logger.error("error on execution: " + err);
             insertId = 0;
         });
@@ -46,8 +46,8 @@ const logModule = ((moment, dynamoDbModule, winston, logDao) => {
     };
 
     return {
-        putLog: putLog
-    }
+        putLog
+    };
 
 })(moment, dynamoDbModule, winston, logDao);
 

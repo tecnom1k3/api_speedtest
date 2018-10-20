@@ -1,9 +1,9 @@
 "use strict";
 
-const mysql = require('mysql');
+const mysql = require("mysql");
 
-const mysqlModule = (function (sql) {
-    const connection = sql.createConnection({
+const mysqlModule = ((mysql) => {
+    const connection = mysql.createConnection({
         host: process.env.RDS_HOST,
         user: process.env.RDS_USER,
         password: process.env.RDS_PASSWORD,
@@ -12,8 +12,8 @@ const mysqlModule = (function (sql) {
     });
 
     return {
-        connection: connection
-    }
+        connection
+    };
 })(mysql);
 
 module.exports = mysqlModule;

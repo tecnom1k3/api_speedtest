@@ -4,9 +4,9 @@ const serverless = require("serverless-http");
 const createError = require("http-errors");
 const express = require("express");
 const bodyParser = require("body-parser");
-const morgan = require('morgan');
+const morgan = require("morgan");
 
-const debug = require('./modules/debug').getNamespace('api-speedtest:main');
+const debug = require("./modules/debug").getNamespace("api-speedtest:main");
 
 debug("Booting");
 
@@ -15,7 +15,7 @@ const logRouter = require("./routes/log");
 
 let app = express();
 
-app.use(morgan('combined'));
+app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(bodyParser.json());

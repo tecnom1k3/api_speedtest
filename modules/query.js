@@ -22,11 +22,9 @@ const queryModule = ((mysql, winston) => {
         });
     };
 
-
-
     return {
-        query: query
-    }
+        query
+    };
 
 })(mysql, winston);
 

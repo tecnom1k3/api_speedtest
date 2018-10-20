@@ -14,8 +14,8 @@ const winstonModule = ((winston) => {
     });
     
     return {
-        logger: logger
-    }
+        logger
+    };
 
 })(winston);
 

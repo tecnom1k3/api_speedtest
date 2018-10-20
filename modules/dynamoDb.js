@@ -23,7 +23,7 @@ const dynamoDBModule = ((AWS, winston) => {
 
         let dynamoRequest = dynamoDb.put(params, (error) => {
             if (error) {
-                winston.logger.error(error)
+                winston.logger.error(error);
             }
         });
 
@@ -32,8 +32,8 @@ const dynamoDBModule = ((AWS, winston) => {
     };
 
     return {
-        putSpeedTestLog: putSpeedTestLog
-    }
+        putSpeedTestLog
+    };
 })(AWS, winston);
 
 module.exports = dynamoDBModule;

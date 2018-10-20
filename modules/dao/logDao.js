@@ -38,8 +38,8 @@ const logDao = ((query, dynamoDbModule, winston) => {
     };
 
     return {
-        create: create
-    }
+        create
+    };
 })(query, dynamoDbModule, winston);
 
 module.exports = logDao;

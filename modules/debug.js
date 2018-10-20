@@ -1,6 +1,6 @@
 "use strict";
 
-const debug = require('debug');
+const debug = require("debug");
 
 /**
  *
@@ -26,9 +26,9 @@ const debugModule = ((debug) => {
     };
 
     return {
-        getNamespace: getNamespace,
-        log: log
-    }
+        getNamespace,
+        log
+    };
 
 })(debug);
 
