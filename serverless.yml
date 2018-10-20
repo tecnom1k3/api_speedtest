@@ -66,6 +66,10 @@ functions:
           path: /
           method: get
           private: false
+      - http:
+          path: wake
+          method: get
+          private: false
 
 plugins:
   - serverless-domain-manager
