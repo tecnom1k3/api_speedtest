@@ -1,10 +1,22 @@
 "use strict";
 const moment = require("moment");
 const dynamoDbModule = require("./dynamoDb");
+const winston = require("./winston");
+const logDao = require("./dao/logDao");
 
-const logModule = ((moment, dynamoDbModule) => {
+/**
+ *
+ * @type {{putLog}}
+ */
+const logModule = ((moment, dynamoDbModule, winston, logDao) => {
 
+    /**
+     *
+     * @param request
+     * @returns {Promise<PromiseResult<D, E>>}
+     */
     const putLog = (request) => {
+        winston.logger.info("Invoked function putLog");
         let timestamp = moment(request.timestamp);
         let date = timestamp.format("YYYY-MM-DD");
         let time = timestamp.format("HH:mm:ss");
@@ -23,13 +35,20 @@ const logModule = ((moment, dynamoDbModule) => {
             ip_address: request.ip_address
         };
 
-        return dynamoDbModule.putSpeedTestLog(model);
+        winston.logger.info("Created model " + JSON.stringify(model));
+
+        let insertId = logDao.create(model).catch((err)=>{
+            winston.logger.error("error on execution: " + err);
+            insertId = 0;
+        });
+
+        return insertId;
     };
 
     return {
         putLog: putLog
     }
 
-})(moment, dynamoDbModule);
+})(moment, dynamoDbModule, winston, logDao);
 
 module.exports = logModule;

@@ -46,12 +46,13 @@ provider:
     RDS_USER: ${ssm:/speedtest/rds/user}
     RDS_DATABASE: ${ssm:/speedtest/rds/database}
     RDS_PASSWORD: ${ssm:/speedtest/rds/password~true}
-#  vpc:
-#    securityGroupIds:
-#      - sg-02b6a929bdd9c2742
-#    subnetIds:
-#      - subnet-018192d8cd139b01a
-#      - subnet-047299e2b7ea5a09c
+    DEBUG: api-speedtest:*
+  vpc:
+    securityGroupIds:
+      - "Fn::GetAtt": ServerlessSecurityGroup.GroupId
+    subnetIds:
+      - Ref: ServerlessSubnetA
+      - Ref: ServerlessSubnetB
 
 functions:
   app:
@@ -61,16 +62,6 @@ functions:
           path: log
           method: put
           private: true
-  test:
-    handler: app.handler
-    timeout: 30
-    vpc:
-      securityGroupIds:
-        - "Fn::GetAtt": ServerlessSecurityGroup.GroupId
-      subnetIds:
-        - Ref: ServerlessSubnetA
-        - Ref: ServerlessSubnetB
-    events:
       - http:
           path: /
           method: get
@@ -200,3 +191,12 @@ resources:
         DestinationCidrBlock: 0.0.0.0/0
         GatewayId:
           Ref: ServerlessInternetGateway
+    ServerlessVpcEndpoint:
+      Type: AWS::EC2::VPCEndpoint
+      Properties:
+        VpcId:
+          Ref: ServerlessVPC
+        PolicyDocument: "{\"Version\":\"2008-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"*\",\"Resource\":\"*\"}]}"
+        RouteTableIds:
+          - Ref: ServerlessRouteTable
+        ServiceName: "com.amazonaws.${self:provider.region}.dynamodb"
