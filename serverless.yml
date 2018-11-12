@@ -204,3 +204,22 @@ resources:
         RouteTableIds:
           - Ref: ServerlessRouteTable
         ServiceName: "com.amazonaws.${self:provider.region}.dynamodb"
+    ServerlessRDS:
+      Properties:
+        AllocatedStorage: 20
+        AllowMajorVersionUpgrade: false
+        AutoMinorVersionUpgrade: false
+        DBInstanceClass: db.t2.micro
+        DBInstanceIdentifier: "speedtest-${self:provider.stage}"
+        DBParameterGroupName: default.mariadb10.3
+        DBSubnetGroupName:
+          Ref: ServerlessRDSSubnetGroup
+        Engine: mariadb
+        EngineVersion: "10.3.8"
+        MasterUserPassword: "${self:provider.environment.RDS_PASSWORD}"
+        MasterUsername: "${self:provider.environment.RDS_USER}"
+        StorageType: gp2
+        VPCSecurityGroups:
+        -
+          Ref: ServerlessStorageSecurityGroup
+      Type: "AWS::RDS::DBInstance"
