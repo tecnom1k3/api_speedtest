@@ -1,13 +1,13 @@
 "use strict";
 
-const query = require("./../query");
-const dynamoDbModule = require("./../dynamoDb");
 const winston = require("./../winston");
+const queryBuilder = require("./../service/queryBuilder");
 
-const logDao = ((query, dynamoDbModule, winston) => {
+const logDao = ((winston, qb) => {
 
-    const insertLog = "INSERT INTO speedtests (date, time, download, upload, ping, ipAddress, serverId, serverName, distance, sponsor, share) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    const qbClient = qb.getClient();
 
+    const speedtestTable = qbClient("speedtests");
     /**
      *
      * @param model
@@ -15,31 +15,29 @@ const logDao = ((query, dynamoDbModule, winston) => {
      */
     const create = async (model) => {
 
-        let result = await query.query(insertLog, [
-            model.date,
-            model.time,
-            model.download,
-            model.upload,
-            model.ping,
-            model.ip_address,
-            model.server_id,
-            model.server_name,
-            model.distance,
-            model.sponsor,
-            model.share
-        ]);
+        let result = await speedtestTable.insert({
+            date: model.date,
+            time: model.time,
+            download: model.download,
+            upload: model.upload,
+            ping: model.ping,
+            ipAddress: model.ip_address,
+            serverId: model.server_id,
+            serverName: model.server_name,
+            distance: model.distance,
+            sponsor: model.sponsor,
+            share: model.share
+        });
 
         winston.logger.info("got result: " + JSON.stringify(result));
 
-        await dynamoDbModule.putSpeedTestLog(model);
-
-        return result.insertId;
+        return result[0];
 
     };
 
     return {
         create
     };
-})(query, dynamoDbModule, winston);
+})(winston, queryBuilder);
 
 module.exports = logDao;
