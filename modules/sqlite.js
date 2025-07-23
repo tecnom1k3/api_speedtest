@@ -20,9 +20,19 @@ const fs = require("fs");
  * @returns {{db: sqlite3.Database}}
  */
 const sqliteModule = ((sqlite3, path, fs) => {
-    // Only use the basename of DB_FILE to avoid directory traversal
-    const envDbFile = process.env.DB_FILE ? path.basename(process.env.DB_FILE) : null;
-    const dbPath = path.join(__dirname, "..", envDbFile || "speedtest.db");
+    // Only use the basename of DB_FILE and validate format to avoid directory traversal
+    let dbFilename = "speedtest.db";
+    if (process.env.DB_FILE) {
+        const base = path.basename(process.env.DB_FILE);
+        if (/^[\w-]+\.db$/.test(base)) {
+            dbFilename = base;
+        }
+    }
+    const baseDir = path.join(__dirname, "..");
+    const dbPath = path.resolve(baseDir, dbFilename);
+    if (!dbPath.startsWith(baseDir + path.sep)) {
+        throw new Error("Invalid DB_FILE path");
+    }
     const dbExists = fs.existsSync(dbPath);
     const db = new sqlite3.Database(dbPath);
 
