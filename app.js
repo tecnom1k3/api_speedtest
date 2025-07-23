@@ -29,6 +29,7 @@ app.use(function (req, res, next) {
 });
 
 // error handler
+// eslint-disable-next-line no-unused-vars
 app.use(function (err, req, res, next) {
     debug("Fell into error handler: " + err);
     // set locals, only providing error in development
