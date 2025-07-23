@@ -18,7 +18,7 @@ router.put("/", async (req, res, next) => {
         result = "success";
         httpCode = 200;
     }
-    res.json({status: result}).status(httpCode);
+    res.status(httpCode).json({ status: result });
 });
 
 module.exports = router;
