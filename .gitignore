@@ -64,3 +64,5 @@ typings/
 .idea
 schema.mwb.bak
 speedtest-temp.pem
+
+data/speedtest.csv

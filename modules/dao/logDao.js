@@ -1,21 +1,38 @@
 "use strict";
 
-const query = require("./../query");
-const dynamoDbModule = require("./../dynamoDb");
+const fs = require("fs");
+const path = require("path");
+const { createArrayCsvWriter } = require("csv-writer");
 const winston = require("./../winston");
 
-const logDao = ((query, dynamoDbModule, winston) => {
-
-    const insertLog = "INSERT INTO speedtests (date, time, download, upload, ping, ipAddress, serverId, serverName, distance, sponsor, share) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+const logDao = ((fs, path, csvWriterFactory, winston) => {
 
     /**
+     * Path to the CSV file used for storage.
+     * Located under the project root in the data directory.
+     */
+    const csvPath = path.join(__dirname, "../../data/speedtest.csv");
+
+    // ensure data directory exists
+    fs.mkdirSync(path.dirname(csvPath), { recursive: true });
+
+    /**
+     * CSV writer instance for appending records.
+     */
+    const csvWriter = csvWriterFactory({
+        path: csvPath,
+        append: true
+    });
+
+    /**
+     * Appends a speed test record to a CSV file.
      *
      * @param model
-     * @returns {Promise<*|number>}
+     * @returns {Promise<number>} resolves with 1 on success
      */
     const create = async (model) => {
 
-        let result = await query.query(insertLog, [
+        const values = [
             model.date,
             model.time,
             model.download,
@@ -27,19 +44,21 @@ const logDao = ((query, dynamoDbModule, winston) => {
             model.distance,
             model.sponsor,
             model.share
-        ]);
+        ];
 
-        winston.logger.info("got result: " + JSON.stringify(result));
-
-        await dynamoDbModule.putSpeedTestLog(model);
-
-        return result.insertId;
-
+        try {
+            await csvWriter.writeRecords([values]);
+            return 1;
+        } catch (err) {
+            winston.logger.error("Error writing CSV: " + err);
+            throw err;
+        }
     };
 
     return {
         create
     };
-})(query, dynamoDbModule, winston);
+})(fs, path, createArrayCsvWriter, winston);
 
 module.exports = logDao;
+

@@ -14,7 +14,7 @@ router.put("/", async (req, res, next) => {
     let result = "fail";
     let httpCode = 409;
     winston.logger.info("promise resolved with insert id " + insertId);
-    if (insertId !== 0) {
+    if (insertId) {
         result = "success";
         httpCode = 200;
     }
