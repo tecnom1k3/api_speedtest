@@ -2,15 +2,27 @@
 
 const fs = require("fs");
 const path = require("path");
+const { createArrayCsvWriter } = require("csv-writer");
 const winston = require("./../winston");
 
-const logDao = ((fs, path, winston) => {
+const logDao = ((fs, path, csvWriterFactory, winston) => {
 
     /**
      * Path to the CSV file used for storage.
      * Located under the project root in the data directory.
      */
     const csvPath = path.join(__dirname, "../../data/speedtest.csv");
+
+    // ensure data directory exists
+    fs.mkdirSync(path.dirname(csvPath), { recursive: true });
+
+    /**
+     * CSV writer instance for appending records.
+     */
+    const csvWriter = csvWriterFactory({
+        path: csvPath,
+        append: true
+    });
 
     /**
      * Appends a speed test record to a CSV file.
@@ -34,24 +46,19 @@ const logDao = ((fs, path, winston) => {
             model.share
         ];
 
-        const line = values.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",") + "\n";
-
-        return new Promise((resolve, reject) => {
-            fs.appendFile(csvPath, line, (err) => {
-                if (err) {
-                    winston.logger.error("Error writing CSV: " + err);
-                    reject(err);
-                } else {
-                    resolve(1);
-                }
-            });
-        });
+        try {
+            await csvWriter.writeRecords([values]);
+            return 1;
+        } catch (err) {
+            winston.logger.error("Error writing CSV: " + err);
+            throw err;
+        }
     };
 
     return {
         create
     };
-})(fs, path, winston);
+})(fs, path, createArrayCsvWriter, winston);
 
 module.exports = logDao;
 
