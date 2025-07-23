@@ -1,10 +1,25 @@
 "use strict";
 
+/**
+ * Database query helper functions.
+ * @module query
+ */
+
 const mysql = require("./mysql");
 const winston = require("./winston");
 
+/**
+ * Wraps access to MySQL using Promises.
+ * @type {{query: function(string, Array): Promise<*>}}
+ */
 const queryModule = ((mysql, winston) => {
 
+    /**
+     * Execute a SQL query using the shared connection.
+     * @param {string} strQuery SQL string to execute
+     * @param {Array} params Parameters for the query
+     * @returns {Promise<*>} resolves with the query results
+     */
     const query = (strQuery, params) => {
 
         winston.logger.info("Invoked query function with " + strQuery);
