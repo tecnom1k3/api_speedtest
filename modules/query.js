@@ -25,7 +25,7 @@ const queryModule = ((mysql, winston) => {
         winston.logger.info("Invoked query function with " + strQuery);
 
         return new Promise((resolve, reject) => {
-            mysql.connection.query(strQuery, params, (error, results, fields) => {
+            mysql.connection.query(strQuery, params, (error, results) => {
                 winston.logger.info("Finished executing query");
                 if (error) {
                     winston.logger.error("Error executing query ");
