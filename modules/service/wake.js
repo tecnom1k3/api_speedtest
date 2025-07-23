@@ -6,26 +6,25 @@
  */
 
 const winston = require("./../winston");
-const query = require("./../query");
 
 /**
  * Collection of wake up service methods.
  * @type {{wakeUp: function(): Promise<*>}}
  */
-const wakeModule = ((winston, query) => {
+const wakeModule = ((winston) => {
 
     /**
-     * Executes a trivial query to keep the database awake.
-     * @returns {Promise<*>} resolves when the query completes
+     * Resolves immediately to indicate the service is running.
+     * @returns {Promise<*>} resolves when complete
      */
-    const wakeUp =  () => {
+    const wakeUp = () => {
         winston.logger.info("waking up");
-        return query.query("select 1 as wake", []);
+        return Promise.resolve(["awake"]);
     };
 
     return {
         wakeUp
     };
-})(winston, query);
+})(winston);
 
 module.exports = wakeModule;
