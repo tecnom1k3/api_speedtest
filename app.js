@@ -3,7 +3,6 @@
 const serverless = require("serverless-http");
 const createError = require("http-errors");
 const express = require("express");
-const bodyParser = require("body-parser");
 const morgan = require("morgan");
 
 const debug = require("./modules/debug").getNamespace("api-speedtest:main");
@@ -19,7 +18,6 @@ let app = express();
 app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
-app.use(bodyParser.json());
 
 app.use("/", indexRouter);
 app.use("/log", logRouter);
