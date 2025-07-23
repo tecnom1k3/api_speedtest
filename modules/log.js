@@ -11,9 +11,10 @@ const logDao = require("./dao/logDao");
 const logModule = ((moment, dynamoDbModule, winston, logDao) => {
 
     /**
+     * Stores a speed test result.
      *
-     * @param request
-     * @returns {Promise<PromiseResult<D, E>>}
+     * @param request {object} speed test payload
+     * @returns {Promise<number>} insert id or 0 when an error occurs
      */
     const putLog = (request) => {
         winston.logger.info("Invoked function putLog");
@@ -39,7 +40,7 @@ const logModule = ((moment, dynamoDbModule, winston, logDao) => {
 
         let insertId = logDao.create(model).catch((err) => {
             winston.logger.error("error on execution: " + err);
-            insertId = 0;
+            return 0;
         });
 
         return insertId;
