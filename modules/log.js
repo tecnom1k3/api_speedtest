@@ -1,6 +1,5 @@
 "use strict";
 const moment = require("moment");
-const dynamoDbModule = require("./dynamoDb");
 const winston = require("./winston");
 const logDao = require("./dao/logDao");
 
@@ -8,7 +7,7 @@ const logDao = require("./dao/logDao");
  *
  * @type {{putLog}}
  */
-const logModule = ((moment, dynamoDbModule, winston, logDao) => {
+const logModule = ((moment, winston, logDao) => {
 
     /**
      * Stores a speed test result.
@@ -50,6 +49,6 @@ const logModule = ((moment, dynamoDbModule, winston, logDao) => {
         putLog
     };
 
-})(moment, dynamoDbModule, winston, logDao);
+})(moment, winston, logDao);
 
 module.exports = logModule;
