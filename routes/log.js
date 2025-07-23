@@ -5,7 +5,7 @@ const router = express.Router();
 const logModule = require("./../modules/log");
 const winston = require("./../modules/winston");
 
-router.put("/", async (req, res, next) => {
+router.put("/", async (req, res) => {
 
     winston.logger.info("Invoked route with request: " + JSON.stringify(req.body));
 
