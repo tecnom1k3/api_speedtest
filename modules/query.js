@@ -5,14 +5,14 @@
  * @module query
  */
 
-const mysql = require("./mysql");
+const sqlite = require("./sqlite");
 const winston = require("./winston");
 
 /**
- * Wraps access to MySQL using Promises.
+ * Wraps access to SQLite using Promises.
  * @type {{query: function(string, Array): Promise<*>}}
  */
-const queryModule = ((mysql, winston) => {
+const queryModule = ((sqlite, winston) => {
 
     /**
      * Execute a SQL query using the shared connection.
@@ -23,17 +23,30 @@ const queryModule = ((mysql, winston) => {
     const query = (strQuery, params) => {
 
         winston.logger.info("Invoked query function with " + strQuery);
+        const trimmed = strQuery.trim().toLowerCase();
 
         return new Promise((resolve, reject) => {
-            mysql.connection.query(strQuery, params, (error, results, fields) => {
-                winston.logger.info("Finished executing query");
-                if (error) {
-                    winston.logger.error("Error executing query ");
-                    reject(error);
-                }
-                winston.logger.info("Ready to resolve promise");
-                resolve(results);
-            });
+            if (trimmed.startsWith("select")) {
+                sqlite.db.all(strQuery, params, (error, rows) => {
+                    winston.logger.info("Finished executing query");
+                    if (error) {
+                        winston.logger.error("Error executing query ");
+                        return reject(error);
+                    }
+                    winston.logger.info("Ready to resolve promise");
+                    resolve(rows);
+                });
+            } else {
+                sqlite.db.run(strQuery, params, function (error) {
+                    winston.logger.info("Finished executing query");
+                    if (error) {
+                        winston.logger.error("Error executing query ");
+                        return reject(error);
+                    }
+                    winston.logger.info("Ready to resolve promise");
+                    resolve({insertId: this.lastID, changes: this.changes});
+                });
+            }
         });
     };
 
@@ -41,6 +54,6 @@ const queryModule = ((mysql, winston) => {
         query
     };
 
-})(mysql, winston);
+})(sqlite, winston);
 
 module.exports = queryModule;

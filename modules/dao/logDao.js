@@ -1,17 +1,16 @@
 "use strict";
 
 const query = require("./../query");
-const dynamoDbModule = require("./../dynamoDb");
 const winston = require("./../winston");
 
-const logDao = ((query, dynamoDbModule, winston) => {
+const logDao = ((query, winston) => {
 
     const insertLog = "INSERT INTO speedtests (date, time, download, upload, ping, ipAddress, serverId, serverName, distance, sponsor, share) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     /**
-     *
+     * Create a new speed test log entry.
      * @param model
-     * @returns {Promise<*|number>}
+     * @returns {Promise<number>} resolves with the inserted row id
      */
     const create = async (model) => {
 
@@ -31,8 +30,6 @@ const logDao = ((query, dynamoDbModule, winston) => {
 
         winston.logger.info("got result: " + JSON.stringify(result));
 
-        await dynamoDbModule.putSpeedTestLog(model);
-
         return result.insertId;
 
     };
@@ -40,6 +37,6 @@ const logDao = ((query, dynamoDbModule, winston) => {
     return {
         create
     };
-})(query, dynamoDbModule, winston);
+})(query, winston);
 
 module.exports = logDao;

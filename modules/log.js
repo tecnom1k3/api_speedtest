@@ -1,19 +1,18 @@
 "use strict";
 const moment = require("moment");
-const dynamoDbModule = require("./dynamoDb");
 const winston = require("./winston");
 const logDao = require("./dao/logDao");
 
 /**
- *
- * @type {{putLog}}
+ * Speed test logging helper.
+ * @type {{putLog: function(object): Promise<*>}}
  */
-const logModule = ((moment, dynamoDbModule, winston, logDao) => {
+const logModule = ((moment, winston, logDao) => {
 
     /**
-     *
+     * Persist a speed test log entry.
      * @param request
-     * @returns {Promise<PromiseResult<D, E>>}
+     * @returns {Promise<*>} resolves with the inserted id
      */
     const putLog = (request) => {
         winston.logger.info("Invoked function putLog");
@@ -49,6 +48,6 @@ const logModule = ((moment, dynamoDbModule, winston, logDao) => {
         putLog
     };
 
-})(moment, dynamoDbModule, winston, logDao);
+})(moment, winston, logDao);
 
 module.exports = logModule;

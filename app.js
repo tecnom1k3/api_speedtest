@@ -1,6 +1,5 @@
 "use strict";
 
-const serverless = require("serverless-http");
 const createError = require("http-errors");
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -43,4 +42,9 @@ app.use(function (err, req, res, next) {
     res.json({status: "error"});
 });
 
-module.exports.handler = serverless(app);
+if (require.main === module) {
+    const port = process.env.PORT || 3000;
+    app.listen(port, () => debug(`Server listening on ${port}`));
+}
+
+module.exports = app;
