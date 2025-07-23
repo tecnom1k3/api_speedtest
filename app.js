@@ -1,6 +1,5 @@
 "use strict";
 
-const serverless = require("serverless-http");
 const createError = require("http-errors");
 const express = require("express");
 const morgan = require("morgan");
@@ -13,7 +12,7 @@ const indexRouter = require("./routes/index");
 const logRouter = require("./routes/log");
 const wakeRouter = require("./routes/wake");
 
-let app = express();
+const app = express();
 
 app.use(morgan("combined"));
 app.use(express.json());
@@ -41,4 +40,7 @@ app.use(function (err, req, res, next) {
     res.json({status: "error"});
 });
 
-module.exports.handler = serverless(app);
+/**
+ * Express application instance exported for use by tests or servers.
+ */
+module.exports = app;

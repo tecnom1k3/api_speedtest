@@ -12,9 +12,8 @@ stubRouter.put('/', (req, res) => {
 });
 
 const app = proxyquire('../app', {
-    './routes/log': stubRouter,
-    'serverless-http': app => app
-}).handler;
+    './routes/log': stubRouter
+});
 
 async function runTest() {
     await request(app)
