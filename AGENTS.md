@@ -3,3 +3,4 @@
 - Use 4 spaces for indentation in all JavaScript files.
 - Run `npm install` to ensure dependencies are installed.
 - Document new code with concise JSDoc style comments.
+- Follow secure coding best practices to avoid common vulnerabilities.

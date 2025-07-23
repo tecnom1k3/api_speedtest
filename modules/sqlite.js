@@ -13,8 +13,16 @@ const fs = require("fs");
  * Provides access to the shared SQLite database.
  * @type {{db: sqlite3.Database}}
  */
+/**
+ * Initialize the shared SQLite connection, creating the database file and
+ * schema on first use.
+ *
+ * @returns {{db: sqlite3.Database}}
+ */
 const sqliteModule = ((sqlite3, path, fs) => {
-    const dbPath = process.env.DB_FILE || path.join(__dirname, "..", "speedtest.db");
+    // Only use the basename of DB_FILE to avoid directory traversal
+    const envDbFile = process.env.DB_FILE ? path.basename(process.env.DB_FILE) : null;
+    const dbPath = path.join(__dirname, "..", envDbFile || "speedtest.db");
     const dbExists = fs.existsSync(dbPath);
     const db = new sqlite3.Database(dbPath);
 
